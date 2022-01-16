@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.bagnoli.verificac19</groupId>
+        <artifactId>dgcreader-quarkus</artifactId>
+        <version>${revision}</version>
+    </parent>
+    
+    <artifactId>dgcreader-quarkus-bom</artifactId>
+    <packaging>pom</packaging>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.bagnoli.verificac19</groupId>
+                <artifactId>dgcreader-quarkus-dto</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bagnoli.verificac19</groupId>
+                <artifactId>dgcreader-quarkus-rest</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.bagnoli.verificac19</groupId>
+                <artifactId>dgcreader-quarkus-service</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>se.digg.dgc</groupId>
+                <artifactId>dgc-create-validate</artifactId>
+                <version>${dgc-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>se.digg.dgc</groupId>
+                <artifactId>dgc-schema</artifactId>
+                <version>${dgc-java.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+</project>
