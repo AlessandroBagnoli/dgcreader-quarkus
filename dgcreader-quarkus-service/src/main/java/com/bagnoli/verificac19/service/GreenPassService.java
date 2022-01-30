@@ -1,6 +1,5 @@
 package com.bagnoli.verificac19.service;
 
-import java.util.List;
 import java.util.Set;
 
 import com.bagnoli.verificac19.dto.GPValidResponse;
@@ -16,6 +15,6 @@ public interface GreenPassService {
 
     Set<String> getCertificates();
 
-    List<String> getKids();
+    Set<String> getKids();
 
 }

@@ -1,6 +1,9 @@
-package com.bagnoli.verificac19.service.downloaders;
+package functional;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -8,37 +11,58 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 
+import com.bagnoli.verificac19.dto.Setting;
 import com.bagnoli.verificac19.service.restclient.DGCApiService;
 
-import io.quarkus.cache.CacheResult;
-import lombok.RequiredArgsConstructor;
+import io.quarkus.test.junit.QuarkusTest;
 import lombok.SneakyThrows;
 
-@ApplicationScoped
-@RequiredArgsConstructor
-public class ConcreteCertificatesDownloader implements CertificatesDownloader {
+@QuarkusTest
+class RestClientTest {
 
-    private final KidsDownloader kidsDownloader;
-    private final DGCApiService dgcApiService;
+    @Inject
+    DGCApiService underTest;
 
-    @Override
-    public List<X509Certificate> download() {
-        return getCertificates();
+    @Test
+    void testGetSettings() {
+        // given
+
+        // when
+        Set<Setting> settings = underTest.getSettings();
+
+        // then
+        assertFalse(settings.isEmpty());
     }
 
-    @CacheResult(cacheName = "certificates-cache")
-    List<X509Certificate> getCertificates() {
+    @Test
+    void testGetKids() {
+        // given
+
+        // when
+        Set<String> kids = underTest.getKids();
+
+        // then
+        assertFalse(kids.isEmpty());
+    }
+
+    @Test
+    @SneakyThrows
+    void testGetCertificates() {
+        // given
         List<X509Certificate> signerCertificates = new ArrayList<>();
-        Set<String> kids = kidsDownloader.download();
+
+        // when
+        Set<String> kids = underTest.getKids();
         boolean doWhile = true;
         String resumeToken = StringUtils.EMPTY;
-        while (doWhile) {
-            Response response = dgcApiService.getCertificates(resumeToken);
+        do {
+            Response response = underTest.getCertificates(resumeToken);
             String kid = response.getHeaderString("X-KID");
             if (kids.contains(kid)) {
                 resumeToken = response.getHeaderString("X-RESUME-TOKEN");
@@ -47,12 +71,14 @@ public class ConcreteCertificatesDownloader implements CertificatesDownloader {
             } else {
                 doWhile = false;
             }
-        }
-        return signerCertificates;
+        } while (doWhile);
+
+        // then
+        assertFalse(signerCertificates.isEmpty());
     }
 
-    @SneakyThrows
-    private X509Certificate convertToX509Cert(String certificateString) {
+    private X509Certificate convertToX509Cert(String certificateString)
+        throws CertificateException {
         X509Certificate certificate;
         CertificateFactory cf;
         byte[] certificateData = Base64.getDecoder().decode(certificateString);
@@ -61,4 +87,5 @@ public class ConcreteCertificatesDownloader implements CertificatesDownloader {
             (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateData));
         return certificate;
     }
+
 }

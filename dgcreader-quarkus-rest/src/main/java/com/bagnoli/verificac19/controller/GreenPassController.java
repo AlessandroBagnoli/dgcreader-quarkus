@@ -1,6 +1,5 @@
 package com.bagnoli.verificac19.controller;
 
-import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -48,7 +47,7 @@ public class GreenPassController {
     @GET
     @Path("/kids")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<String> getKids() {
+    public Set<String> getKids() {
         return this.greenPassService.getKids();
     }
 

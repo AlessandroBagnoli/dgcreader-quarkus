@@ -1,7 +1,6 @@
 package com.bagnoli.verificac19.service;
 
 import java.security.cert.Certificate;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,7 +53,7 @@ public class ConcreteGreenPassService implements GreenPassService {
     }
 
     @Override
-    public List<String> getKids() {
+    public Set<String> getKids() {
         return kidsDownloader.download();
     }
 

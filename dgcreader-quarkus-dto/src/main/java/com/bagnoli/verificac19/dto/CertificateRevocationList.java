@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 public class CertificateRevocationList {
+
     private Long chunk;
     private String creationDate;
     private Delta delta;
@@ -30,7 +31,9 @@ public class CertificateRevocationList {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @Builder(toBuilder = true)
     public static class Delta {
+
         private List<String> deletions;
         private List<String> insertions;
+
     }
 }

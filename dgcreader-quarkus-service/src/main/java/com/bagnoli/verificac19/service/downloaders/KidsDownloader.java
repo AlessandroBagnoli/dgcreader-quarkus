@@ -1,8 +1,8 @@
 package com.bagnoli.verificac19.service.downloaders;
 
-import java.util.List;
+import java.util.Set;
 
 @FunctionalInterface
 public interface KidsDownloader {
-    List<String> download();
+    Set<String> download();
 }
