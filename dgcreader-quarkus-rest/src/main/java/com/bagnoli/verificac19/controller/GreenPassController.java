@@ -26,10 +26,9 @@ public class GreenPassController {
     @Path("/validate")
     @Produces(MediaType.APPLICATION_JSON)
     public GPValidResponse validate(
-        @Required @QueryParam("base45") String base45EncodedGP,
-        @QueryParam("includeValidUntil") boolean includeValidUntil
+        @Required @QueryParam("base45") String base45EncodedGP
     ) {
-        return this.greenPassService.validate(base45EncodedGP, includeValidUntil);
+        return this.greenPassService.validate(base45EncodedGP);
     }
 
     @GET

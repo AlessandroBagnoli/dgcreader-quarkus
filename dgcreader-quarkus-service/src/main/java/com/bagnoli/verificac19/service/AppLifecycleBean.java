@@ -4,6 +4,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
+import com.bagnoli.verificac19.service.downloaders.DrlChecker;
 import com.bagnoli.verificac19.service.downloaders.SettingsDownloader;
 
 import io.quarkus.runtime.StartupEvent;
@@ -17,6 +18,7 @@ public class AppLifecycleBean {
 
     private final CertificatesDownloader certificatesDownloader;
     private final SettingsDownloader settingsDownloader;
+    private final DrlChecker drlChecker;
 
     void onStart(@Observes StartupEvent ev) {
         log.info("Downloading certificates...");
@@ -24,6 +26,8 @@ public class AppLifecycleBean {
         log.info("Done downloading certificates.");
         log.info("Downloading settings...");
         settingsDownloader.downloadSettings();
-        log.info("Done downloading settings, application up and running!");
+        log.info("Downloading settings...");
+        drlChecker.check(0L, 0L);
+        log.info("Done downloading drl, application up and running!");
     }
 }

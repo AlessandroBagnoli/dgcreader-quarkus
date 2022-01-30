@@ -36,6 +36,11 @@ public class ConcreteGreenPassService implements GreenPassService {
     }
 
     @Override
+    public GPValidResponse validate(String base45) {
+        return validate(base45, false);
+    }
+
+    @Override
     public Set<Setting> getSettings() {
         return settingsDownloader.downloadSettings();
     }

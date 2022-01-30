@@ -10,6 +10,8 @@ public interface GreenPassService {
 
     GPValidResponse validate(String base45, boolean includeValidUntil);
 
+    GPValidResponse validate(String base45);
+
     Set<Setting> getSettings();
 
     Set<String> getCertificates();
