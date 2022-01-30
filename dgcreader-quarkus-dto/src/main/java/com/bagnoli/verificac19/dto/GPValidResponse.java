@@ -14,10 +14,8 @@ import lombok.Setter;
 @Builder
 public class GPValidResponse {
 
-    private boolean valid;
-    private String errorDescription;
+    private CertificateStatus certificateStatus;
     private PersonData personData;
-    private LocalDate validUntil;
 
     @Getter
     @Setter
@@ -31,5 +29,13 @@ public class GPValidResponse {
 
     }
 
+    public enum CertificateStatus {
+        NOT_VALID,
+        NOT_VALID_YET, 
+        VALID, 
+        REVOKED, 
+        NOT_EU_DCC, 
+        TEST_NEEDED;
+    }
 
 }

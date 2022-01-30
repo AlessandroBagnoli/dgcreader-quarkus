@@ -1,17 +1,16 @@
 package com.bagnoli.verificac19.exceptionmapper;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-import com.bagnoli.verificac19.exception.RequiredParamException;
-
 @Provider
-public class RequiredParamExceptionMapper implements ExceptionMapper<RequiredParamException> {
+public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundException> {
     @Override
-    public Response toResponse(RequiredParamException ex) {
+    public Response toResponse(NotFoundException ex) {
         return Response
-            .status(Response.Status.BAD_REQUEST)
+            .status(Response.Status.NOT_FOUND)
             .entity(ex.toString())
             .build();
     }

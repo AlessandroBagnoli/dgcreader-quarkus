@@ -6,6 +6,7 @@ import java.security.cert.CertificateExpiredException;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.exception.ServiceException;
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class ConcreteGDCDecoderWrapper implements GDCDecoderWrapper {
         try {
             digitalCovidCertificate = decoder.decode(base45);
         } catch (DGCSchemaException | SignatureException | CertificateExpiredException | IOException e) {
-            throw new RuntimeException();
+            throw new ServiceException(e.getMessage());
         }
 
         return digitalCovidCertificate;

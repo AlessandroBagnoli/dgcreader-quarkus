@@ -2,7 +2,6 @@ package com.bagnoli.verificac19.service.restclient;
 
 import java.net.URL;
 
-import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
 import javax.net.ssl.SSLContext;
 
@@ -14,7 +13,6 @@ import io.netty.handler.ssl.SslProtocols;
 import io.quarkus.arc.DefaultBean;
 import lombok.SneakyThrows;
 
-@Dependent
 public class RestClientConfig {
 
     @ConfigProperty(name = "settings-api.baseurl")
