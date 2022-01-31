@@ -39,6 +39,11 @@
                 <version>${revision}</version>
             </dependency>
             <dependency>
+                <groupId>com.google.zxing</groupId>
+                <artifactId>javase</artifactId>
+                <version>${zxing.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>se.digg.dgc</groupId>
                 <artifactId>dgc-create-validate</artifactId>
                 <version>${dgc-java.version}</version>
