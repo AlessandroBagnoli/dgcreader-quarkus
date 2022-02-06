@@ -13,6 +13,7 @@ import com.bagnoli.verificac19.exception.ServiceException;
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
 
 import lombok.RequiredArgsConstructor;
+import se.digg.dgc.encoding.BarcodeException;
 import se.digg.dgc.payload.v1.DGCSchemaException;
 import se.digg.dgc.signatures.impl.DefaultDGCSignatureVerifier;
 
@@ -36,5 +37,20 @@ public class ConcreteGDCDecoderWrapper implements GDCDecoderWrapper {
 
         return digitalCovidCertificate;
 
+    }
+
+    @Override
+    public EnrichedDigitalCovidCertificate decode(byte[] file) {
+        EnrichedDGCBarcodeDecoder decoder =
+            new ConcreteEnrichedDGCBarcodeDecoder(new DefaultDGCSignatureVerifier(),
+                (x, y) -> certificatesDownloader.download());
+        EnrichedDigitalCovidCertificate digitalCovidCertificate;
+        try {
+            digitalCovidCertificate = decoder.decodeBarcode(file);
+        } catch (DGCSchemaException | SignatureException | CertificateExpiredException | IOException | BarcodeException e) {
+            throw new ServiceException(e.getMessage());
+        }
+
+        return digitalCovidCertificate;
     }
 }
