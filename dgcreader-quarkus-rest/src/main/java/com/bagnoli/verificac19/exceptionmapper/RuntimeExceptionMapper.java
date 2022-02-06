@@ -10,7 +10,7 @@ public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
     public Response toResponse(RuntimeException ex) {
         return Response
             .status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(ex.toString())
+            .entity(ex.toString()) //TODO creare un DTO universale da restituire in caso di errore
             .build();
     }
 }

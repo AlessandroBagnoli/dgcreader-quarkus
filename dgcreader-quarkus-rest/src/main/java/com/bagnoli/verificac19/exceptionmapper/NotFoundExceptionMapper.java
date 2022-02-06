@@ -11,7 +11,7 @@ public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundExceptio
     public Response toResponse(NotFoundException ex) {
         return Response
             .status(Response.Status.NOT_FOUND)
-            .entity(ex.toString())
+            .entity(ex.toString()) //TODO creare un DTO universale da restituire in caso di errore
             .build();
     }
 }

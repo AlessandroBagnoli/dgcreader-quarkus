@@ -39,6 +39,7 @@ public class ConcreteDrlSynchronizer implements DrlSynchronizer {
             version = certificateRevocationList.getFromVersion();
             chunk = certificateRevocationList.getChunk() + 1;
         }
+        //TODO salvarsi ultima version e chunk a cui si è arrivati da qualche parte, trovare pure il modo per schedulare questa attività in modo tale che venga fatta ad intervalli regolari
 
     }
 
