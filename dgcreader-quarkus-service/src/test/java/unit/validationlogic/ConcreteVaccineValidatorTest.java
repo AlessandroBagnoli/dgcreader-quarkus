@@ -3,6 +3,7 @@ package unit.validationlogic;
 import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
 import static java.util.Collections.singletonList;
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,11 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 import com.bagnoli.verificac19.service.validationlogic.ConcreteVaccineValidator;
+import com.bagnoli.verificac19.service.validationlogic.RevokedAndBlacklistedChecker;
 
 import se.digg.dgc.payload.v1.PersonName;
 import se.digg.dgc.payload.v1.VaccinationEntry;
@@ -35,6 +37,7 @@ class ConcreteVaccineValidatorTest {
     private static final String JOHNSON = "EU/1/20/1525";
 
     private @Mock SettingsRetriever settingsRetriever;
+    private @Mock RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
     private @InjectMocks ConcreteVaccineValidator underTest;
 
     @Test
@@ -53,7 +56,7 @@ class ConcreteVaccineValidatorTest {
                 .withV(singletonList(
                         new VaccinationEntry()
                             .withCo("")
-                            .withCi("")
+                            .withCi("fakeID")
                             .withDn(1)
                             .withDt(LocalDate.of(2022, 2, 24))
                             .withIs("")
@@ -64,6 +67,7 @@ class ConcreteVaccineValidatorTest {
                             .withVp("")
                     )
                 );
+        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
         given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
             15);
         given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),
@@ -96,7 +100,7 @@ class ConcreteVaccineValidatorTest {
                 .withV(singletonList(
                         new VaccinationEntry()
                             .withCo("")
-                            .withCi("")
+                            .withCi("fakeID")
                             .withDn(1)
                             .withDt(LocalDate.of(2022, 1, 10))
                             .withIs("")
@@ -107,6 +111,7 @@ class ConcreteVaccineValidatorTest {
                             .withVp("")
                     )
                 );
+        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
         given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
             15);
         given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),

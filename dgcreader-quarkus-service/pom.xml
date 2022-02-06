@@ -27,6 +27,10 @@
     <dependencies>
         <dependency>
             <groupId>com.bagnoli.verificac19</groupId>
+            <artifactId>dgcreader-quarkus-dao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.bagnoli.verificac19</groupId>
             <artifactId>dgcreader-quarkus-dto</artifactId>
         </dependency>
         <dependency>

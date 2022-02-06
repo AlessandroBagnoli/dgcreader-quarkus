@@ -1,10 +1,9 @@
 package com.bagnoli.verificac19.service.downloaders;
 
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateFactory;
+import static com.bagnoli.verificac19.utility.CertificateUtilities.convertToX509Cert;
+
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +16,6 @@ import com.bagnoli.verificac19.service.restclient.DGCApiService;
 
 import io.quarkus.cache.CacheResult;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -51,14 +49,4 @@ public class ConcreteCertificatesDownloader implements CertificatesDownloader {
         return signerCertificates;
     }
 
-    @SneakyThrows
-    private X509Certificate convertToX509Cert(String certificateString) {
-        X509Certificate certificate;
-        CertificateFactory cf;
-        byte[] certificateData = Base64.getDecoder().decode(certificateString);
-        cf = CertificateFactory.getInstance("X509");
-        certificate =
-            (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certificateData));
-        return certificate;
-    }
 }

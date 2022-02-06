@@ -27,6 +27,7 @@
 
     <modules>
         <module>dgcreader-quarkus-bom</module>
+        <module>dgcreader-quarkus-dao</module>
         <module>dgcreader-quarkus-dto</module>
         <module>dgcreader-quarkus-rest</module>
         <module>dgcreader-quarkus-service</module>

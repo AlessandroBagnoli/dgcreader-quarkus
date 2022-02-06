@@ -7,13 +7,14 @@ import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALI
 import static com.bagnoli.verificac19.dto.ValidationScanMode.BOOSTER_DGP;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
     private static final String JOHNSON = "EU/1/20/1525";
 
     private final SettingsRetriever settingsRetriever;
+    private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
 
     @Override
     public CertificateStatus calculateValidity(
@@ -44,6 +46,13 @@ public class ConcreteVaccineValidator implements VaccineValidator {
         LocalDate vaccinationDate = vaccinationEntry.getDt();
         Integer totalSeriesOfDoses = vaccinationEntry.getSd();
         LocalDate now = LocalDate.now();
+        String certificateIdentifier = vaccinationEntry.getCi();
+
+        Optional<CertificateStatus> check =
+            revokedAndBlacklistedChecker.check(certificateIdentifier);
+        if (check.isPresent()) {
+            return check.get();
+        }
 
         // Check if vaccine is present in setting list otherwise returns not valid
         if (settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, vaccinationType) == null) {

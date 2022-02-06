@@ -7,13 +7,14 @@ import static com.bagnoli.verificac19.dto.ValidationScanMode.NORMAL_DGP;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class ConcreteTestValidator implements TestValidator {
     private static final String SETTING_TYPE = "GENERIC";
 
     private final SettingsRetriever settingsRetriever;
+    private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
 
     @Override
     public CertificateStatus calculateValidity(
@@ -48,6 +50,13 @@ public class ConcreteTestValidator implements TestValidator {
         LocalDateTime dateTimeOfSampleCollection =
             LocalDateTime.ofInstant(testEntry.getSc(), ZoneId.of("Europe/Rome"));
         LocalDateTime now = LocalDateTime.now();
+        String certificateIdentifier = testEntry.getCi();
+
+        Optional<CertificateStatus> check =
+            revokedAndBlacklistedChecker.check(certificateIdentifier);
+        if (check.isPresent()) {
+            return check.get();
+        }
 
         if (DETECTED.equals(testResult)) {
             return NOT_VALID;

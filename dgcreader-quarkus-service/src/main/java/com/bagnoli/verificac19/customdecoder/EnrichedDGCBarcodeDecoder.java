@@ -1,4 +1,4 @@
-package com.bagnoli.verificac19.model;
+package com.bagnoli.verificac19.customdecoder;
 
 import java.io.IOException;
 import java.security.SignatureException;

@@ -5,10 +5,10 @@ import static java.util.Optional.ofNullable;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse;
 import com.bagnoli.verificac19.dto.GPValidResponse.PersonData;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 
 import lombok.RequiredArgsConstructor;
 

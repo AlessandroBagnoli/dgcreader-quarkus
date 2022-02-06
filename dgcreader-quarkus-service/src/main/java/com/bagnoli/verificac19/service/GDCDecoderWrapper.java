@@ -1,6 +1,6 @@
 package com.bagnoli.verificac19.service;
 
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 
 @FunctionalInterface
 public interface GDCDecoderWrapper {

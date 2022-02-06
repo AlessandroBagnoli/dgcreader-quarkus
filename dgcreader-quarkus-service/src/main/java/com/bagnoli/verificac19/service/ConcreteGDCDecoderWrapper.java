@@ -6,10 +6,10 @@ import java.security.cert.CertificateExpiredException;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.customdecoder.ConcreteEnrichedDGCBarcodeDecoder;
+import com.bagnoli.verificac19.customdecoder.EnrichedDGCBarcodeDecoder;
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.exception.ServiceException;
-import com.bagnoli.verificac19.model.ConcreteEnrichedDGCBarcodeDecoder;
-import com.bagnoli.verificac19.model.EnrichedDGCBarcodeDecoder;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
 
 import lombok.RequiredArgsConstructor;

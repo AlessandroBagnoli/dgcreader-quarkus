@@ -7,13 +7,14 @@ import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALI
 import static com.bagnoli.verificac19.dto.ValidationScanMode.BOOSTER_DGP;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 
 import lombok.RequiredArgsConstructor;
 import se.digg.dgc.payload.v1.RecoveryEntry;
@@ -22,6 +23,8 @@ import se.digg.dgc.payload.v1.RecoveryEntry;
 @RequiredArgsConstructor
 public class ConcreteRecoveryValidator implements RecoveryValidator {
 
+    private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
+
     @Override
     public CertificateStatus calculateValidity(
         EnrichedDigitalCovidCertificate digitalCovidCertificate,
@@ -29,6 +32,13 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
         RecoveryEntry recoveryEntry = digitalCovidCertificate.getR().stream()
             .reduce((first, second) -> second)
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No recoveries found"));
+        String certificateIdentifier = recoveryEntry.getCi();
+
+        Optional<CertificateStatus> check =
+            revokedAndBlacklistedChecker.check(certificateIdentifier);
+        if (check.isPresent()) {
+            return check.get();
+        }
 
         LocalDate certificateValidFrom = recoveryEntry.getDf();
         LocalDate certificateValidUntil = recoveryEntry.getDu();

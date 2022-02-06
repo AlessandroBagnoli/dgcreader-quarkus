@@ -5,11 +5,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.transaction.Transactional;
 
+import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.dto.GPValidResponse;
 import com.bagnoli.verificac19.dto.Setting;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
-import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
 import com.bagnoli.verificac19.service.downloaders.KidsDownloader;
 import com.bagnoli.verificac19.service.downloaders.SettingsDownloader;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @ApplicationScoped
 @RequiredArgsConstructor
+@Transactional
 public class ConcreteGreenPassService implements GreenPassService {
 
     private final GDCDecoderWrapper gdcDecoderWrapper;
