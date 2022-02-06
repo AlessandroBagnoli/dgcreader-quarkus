@@ -23,6 +23,7 @@ public class CertificateRevocationList {
     private String lastElementInChunk;
     private List<String> revokedUcvi;
     private Long sizeSingleChunkInByte;
+    private Long fromVersion;
     private Long version;
     private Long totalNumberUCVI;
 

@@ -8,6 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import com.bagnoli.verificac19.dto.CertificateRevocationList;
@@ -32,11 +33,11 @@ public interface DGCApiService {
 
     @GET
     @Path("/drl/check")
-    CrlStatus getCRLStatus(@HeaderParam("version") Long version, @HeaderParam("chunk") Long chunk);
+    CrlStatus getCRLStatus(@QueryParam("version") Long version, @QueryParam("chunk") Long chunk);
 
     @GET
     @Path("/drl")
-    CertificateRevocationList getCertificateRevocationList(@HeaderParam("version") Long version,
-        @HeaderParam("chunk") Long chunk);
+    CertificateRevocationList getCertificateRevocationList(@QueryParam("version") Long version,
+        @QueryParam("chunk") Long chunk);
 
 }
