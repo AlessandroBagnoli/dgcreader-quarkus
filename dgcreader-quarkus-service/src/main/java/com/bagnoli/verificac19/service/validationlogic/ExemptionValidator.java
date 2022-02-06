@@ -4,7 +4,7 @@ import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 
-public interface RecoveryValidator {
+public interface ExemptionValidator {
     CertificateStatus calculateValidity(EnrichedDigitalCovidCertificate digitalCovidCertificate,
         ValidationScanMode validationScanMode);
 }

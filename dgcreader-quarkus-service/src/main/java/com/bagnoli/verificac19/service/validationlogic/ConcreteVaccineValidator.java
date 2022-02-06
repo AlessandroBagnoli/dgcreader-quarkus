@@ -10,14 +10,13 @@ import java.time.LocalDate;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.bagnoli.verificac19.dto.GPValidResponse;
-import com.bagnoli.verificac19.dto.GPValidResponse.PersonData;
+import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 
 import lombok.RequiredArgsConstructor;
-import se.digg.dgc.payload.v1.DigitalCovidCertificate;
 import se.digg.dgc.payload.v1.VaccinationEntry;
 
 @ApplicationScoped
@@ -33,16 +32,12 @@ public class ConcreteVaccineValidator implements VaccineValidator {
     private final SettingsRetriever settingsRetriever;
 
     @Override
-    public GPValidResponse calculateValidity(DigitalCovidCertificate digitalCovidCertificate,
+    public CertificateStatus calculateValidity(
+        EnrichedDigitalCovidCertificate digitalCovidCertificate,
         ValidationScanMode validationScanMode) {
         VaccinationEntry vaccinationEntry = digitalCovidCertificate.getV().stream()
             .reduce((first, second) -> second)
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No vaccines found"));
-        PersonData personData = PersonData.builder()
-            .name(digitalCovidCertificate.getNam().getGn())
-            .surname(digitalCovidCertificate.getNam().getFn())
-            .birthDate(digitalCovidCertificate.getDateOfBirth().asLocalDate())
-            .build();
 
         String vaccinationType = vaccinationEntry.getMp();
         Integer doseNumber = vaccinationEntry.getDn();
@@ -52,10 +47,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
 
         // Check if vaccine is present in setting list otherwise returns not valid
         if (settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, vaccinationType) == null) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID)
-                .personData(personData)
-                .build();
+            return NOT_VALID;
         }
 
         LocalDate startDate;
@@ -76,29 +68,17 @@ public class ConcreteVaccineValidator implements VaccineValidator {
         }
 
         if (startDate.isAfter(now)) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID_YET)
-                .personData(personData)
-                .build();
+            return NOT_VALID_YET;
         }
         if (now.isAfter(endDate)) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID)
-                .personData(personData)
-                .build();
+            return NOT_VALID;
         } else {
             //If the basic controls are passed, we have to check for booster validity with particular attention to johnson vaccine type
             if (validationScanMode == BOOSTER_DGP &&
                 testNeeded(vaccinationType, doseNumber, totalSeriesOfDoses)) {
-                return GPValidResponse.builder()
-                    .certificateStatus(TEST_NEEDED)
-                    .personData(personData)
-                    .build();
+                return TEST_NEEDED;
             }
-            return GPValidResponse.builder()
-                .certificateStatus(VALID)
-                .personData(personData)
-                .build();
+            return VALID;
         }
     }
 

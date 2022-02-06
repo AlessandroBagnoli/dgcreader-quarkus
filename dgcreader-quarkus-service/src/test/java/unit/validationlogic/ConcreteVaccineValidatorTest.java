@@ -16,12 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bagnoli.verificac19.dto.GPValidResponse;
+import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 import com.bagnoli.verificac19.service.validationlogic.ConcreteVaccineValidator;
 
-import se.digg.dgc.payload.v1.DigitalCovidCertificate;
 import se.digg.dgc.payload.v1.PersonName;
 import se.digg.dgc.payload.v1.VaccinationEntry;
 
@@ -40,29 +40,30 @@ class ConcreteVaccineValidatorTest {
     @Test
     void notValidYet_when_dateInFuture() {
         // given
-        DigitalCovidCertificate dgc = (DigitalCovidCertificate) new DigitalCovidCertificate()
-            .withDob(LocalDate.of(1900, 1, 1))
-            .withNam(
-                new PersonName()
-                    .withFn("Mario")
-                    .withFnt("Mario")
-                    .withGn("Rossi")
-                    .withGnt("Rossi")
-            )
-            .withV(singletonList(
-                    new VaccinationEntry()
-                        .withCo("")
-                        .withCi("")
-                        .withDn(1)
-                        .withDt(LocalDate.of(2022, 2, 24))
-                        .withIs("")
-                        .withMa("")
-                        .withMp("EU/1/20/1525")
-                        .withSd(2)
-                        .withTg("")
-                        .withVp("")
+        EnrichedDigitalCovidCertificate dgc =
+            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
+                .withDob(LocalDate.of(1900, 1, 1))
+                .withNam(
+                    new PersonName()
+                        .withFn("Mario")
+                        .withFnt("Mario")
+                        .withGn("Rossi")
+                        .withGnt("Rossi")
                 )
-            );
+                .withV(singletonList(
+                        new VaccinationEntry()
+                            .withCo("")
+                            .withCi("")
+                            .withDn(1)
+                            .withDt(LocalDate.of(2022, 2, 24))
+                            .withIs("")
+                            .withMa("")
+                            .withMp("EU/1/20/1525")
+                            .withSd(2)
+                            .withTg("")
+                            .withVp("")
+                    )
+                );
         given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
             15);
         given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),
@@ -72,39 +73,40 @@ class ConcreteVaccineValidatorTest {
             60);
 
         // when
-        GPValidResponse response =
+        CertificateStatus response =
             underTest.calculateValidity(dgc, ValidationScanMode.NORMAL_DGP);
 
         // then
-        assertEquals(NOT_VALID_YET, response.getCertificateStatus());
+        assertEquals(NOT_VALID_YET, response);
     }
 
     @Test
     void valid_when_firstDoseOfJohnsonNormalVerification() {
         // given
-        DigitalCovidCertificate dgc = (DigitalCovidCertificate) new DigitalCovidCertificate()
-            .withDob(LocalDate.of(1900, 1, 1))
-            .withNam(
-                new PersonName()
-                    .withFn("Mario")
-                    .withFnt("Mario")
-                    .withGn("Rossi")
-                    .withGnt("Rossi")
-            )
-            .withV(singletonList(
-                    new VaccinationEntry()
-                        .withCo("")
-                        .withCi("")
-                        .withDn(1)
-                        .withDt(LocalDate.of(2022, 1, 10))
-                        .withIs("")
-                        .withMa("")
-                        .withMp("EU/1/20/1525")
-                        .withSd(2)
-                        .withTg("")
-                        .withVp("")
+        EnrichedDigitalCovidCertificate dgc =
+            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
+                .withDob(LocalDate.of(1900, 1, 1))
+                .withNam(
+                    new PersonName()
+                        .withFn("Mario")
+                        .withFnt("Mario")
+                        .withGn("Rossi")
+                        .withGnt("Rossi")
                 )
-            );
+                .withV(singletonList(
+                        new VaccinationEntry()
+                            .withCo("")
+                            .withCi("")
+                            .withDn(1)
+                            .withDt(LocalDate.of(2022, 1, 10))
+                            .withIs("")
+                            .withMa("")
+                            .withMp("EU/1/20/1525")
+                            .withSd(2)
+                            .withTg("")
+                            .withVp("")
+                    )
+                );
         given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
             15);
         given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),
@@ -114,10 +116,10 @@ class ConcreteVaccineValidatorTest {
             60);
 
         // when
-        GPValidResponse response =
+        CertificateStatus response =
             underTest.calculateValidity(dgc, ValidationScanMode.NORMAL_DGP);
 
         // then
-        assertEquals(VALID, response.getCertificateStatus());
+        assertEquals(VALID, response);
     }
 }

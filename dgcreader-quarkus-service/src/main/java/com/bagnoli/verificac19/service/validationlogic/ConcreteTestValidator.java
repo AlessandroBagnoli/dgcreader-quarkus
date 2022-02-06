@@ -10,14 +10,13 @@ import java.time.ZoneId;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.bagnoli.verificac19.dto.GPValidResponse;
-import com.bagnoli.verificac19.dto.GPValidResponse.PersonData;
+import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
 
 import lombok.RequiredArgsConstructor;
-import se.digg.dgc.payload.v1.DigitalCovidCertificate;
 import se.digg.dgc.payload.v1.TestEntry;
 
 @ApplicationScoped
@@ -38,16 +37,12 @@ public class ConcreteTestValidator implements TestValidator {
     private final SettingsRetriever settingsRetriever;
 
     @Override
-    public GPValidResponse calculateValidity(DigitalCovidCertificate digitalCovidCertificate,
+    public CertificateStatus calculateValidity(
+        EnrichedDigitalCovidCertificate digitalCovidCertificate,
         ValidationScanMode validationScanMode) {
         TestEntry testEntry = digitalCovidCertificate.getT().stream()
             .reduce((first, second) -> second)
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No tests found"));
-        PersonData personData = PersonData.builder()
-            .name(digitalCovidCertificate.getNam().getGn())
-            .surname(digitalCovidCertificate.getNam().getFn())
-            .birthDate(digitalCovidCertificate.getDateOfBirth().asLocalDate())
-            .build();
         String testType = testEntry.getTt();
         String testResult = testEntry.getTr();
         LocalDateTime dateTimeOfSampleCollection =
@@ -55,10 +50,7 @@ public class ConcreteTestValidator implements TestValidator {
         LocalDateTime now = LocalDateTime.now();
 
         if (DETECTED.equals(testResult)) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID)
-                .personData(personData)
-                .build();
+            return NOT_VALID;
         }
 
         LocalDateTime startDateTime;
@@ -75,30 +67,18 @@ public class ConcreteTestValidator implements TestValidator {
             endDateTime = dateTimeOfSampleCollection.plusHours(
                 settingsRetriever.getSettingValue(MOLECULAR_TEST_END_HOUR, SETTING_TYPE));
         } else {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID)
-                .personData(personData)
-                .build();
+            return NOT_VALID;
         }
 
         if (startDateTime.isAfter(now)) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID_YET)
-                .personData(personData)
-                .build();
+            return NOT_VALID_YET;
         }
 
         if (now.isAfter(endDateTime)) {
-            return GPValidResponse.builder()
-                .certificateStatus(NOT_VALID)
-                .personData(personData)
-                .build();
+            return NOT_VALID;
         }
 
-        return GPValidResponse.builder()
-            .certificateStatus(validationScanMode == NORMAL_DGP ? VALID : NOT_VALID)
-            .personData(personData)
-            .build();
+        return validationScanMode == NORMAL_DGP ? VALID : NOT_VALID;
 
     }
 

@@ -1,8 +1,8 @@
 package com.bagnoli.verificac19.service;
 
-import se.digg.dgc.payload.v1.DigitalCovidCertificate;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 
 @FunctionalInterface
 public interface GDCDecoderWrapper {
-    DigitalCovidCertificate decode(String base45);
+    EnrichedDigitalCovidCertificate decode(String base45);
 }

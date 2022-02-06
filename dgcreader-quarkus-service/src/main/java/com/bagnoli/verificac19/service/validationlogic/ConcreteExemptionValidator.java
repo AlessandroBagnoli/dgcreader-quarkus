@@ -14,34 +14,31 @@ import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
 import com.bagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
 import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
-
-import lombok.RequiredArgsConstructor;
-import se.digg.dgc.payload.v1.RecoveryEntry;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate.ExemptionEntry;
 
 @ApplicationScoped
-@RequiredArgsConstructor
-public class ConcreteRecoveryValidator implements RecoveryValidator {
+public class ConcreteExemptionValidator implements ExemptionValidator {
 
     @Override
     public CertificateStatus calculateValidity(
         EnrichedDigitalCovidCertificate digitalCovidCertificate,
         ValidationScanMode validationScanMode) {
-        RecoveryEntry recoveryEntry = digitalCovidCertificate.getR().stream()
+        ExemptionEntry exemptionEntry = digitalCovidCertificate.getE().stream()
             .reduce((first, second) -> second)
-            .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No recoveries found"));
-
-        LocalDate certificateValidFrom = recoveryEntry.getDf();
-        LocalDate certificateValidUntil = recoveryEntry.getDu();
+            .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No exemptions found"));
+        LocalDate startDateTime = exemptionEntry.getDf();
+        LocalDate endDateTime = exemptionEntry.getDu();
         LocalDate now = LocalDate.now();
 
-        if (certificateValidFrom.isAfter(now)) {
+        if (startDateTime.isAfter(now)) {
             return NOT_VALID_YET;
         }
 
-        if (now.isAfter(certificateValidUntil)) {
+        if (now.isAfter(endDateTime)) {
             return NOT_VALID;
         }
 
         return validationScanMode == BOOSTER_DGP ? TEST_NEEDED : VALID;
     }
+
 }

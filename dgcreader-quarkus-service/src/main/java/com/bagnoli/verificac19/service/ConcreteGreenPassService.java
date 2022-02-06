@@ -9,13 +9,13 @@ import javax.enterprise.context.ApplicationScoped;
 import com.bagnoli.verificac19.dto.GPValidResponse;
 import com.bagnoli.verificac19.dto.Setting;
 import com.bagnoli.verificac19.dto.ValidationScanMode;
+import com.bagnoli.verificac19.model.EnrichedDigitalCovidCertificate;
 import com.bagnoli.verificac19.service.downloaders.CertificatesDownloader;
 import com.bagnoli.verificac19.service.downloaders.KidsDownloader;
 import com.bagnoli.verificac19.service.downloaders.SettingsDownloader;
 import com.bagnoli.verificac19.service.validationlogic.Validator;
 
 import lombok.RequiredArgsConstructor;
-import se.digg.dgc.payload.v1.DigitalCovidCertificate;
 
 @ApplicationScoped
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class ConcreteGreenPassService implements GreenPassService {
 
     @Override
     public GPValidResponse validate(String base45, ValidationScanMode validationScanMode) {
-        DigitalCovidCertificate digitalCovidCertificate = gdcDecoderWrapper.decode(base45);
+        EnrichedDigitalCovidCertificate digitalCovidCertificate = gdcDecoderWrapper.decode(base45);
         return validator.validate(digitalCovidCertificate, validationScanMode);
     }
 
