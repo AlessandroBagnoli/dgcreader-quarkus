@@ -4,6 +4,7 @@ import static java.util.Optional.ofNullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.enterprise.context.ApplicationScoped;
 
@@ -14,9 +15,11 @@ import com.bagnoli.verificac19.model.RevokedPass;
 import com.bagnoli.verificac19.service.restclient.DGCApiService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @ApplicationScoped
 @RequiredArgsConstructor
+@Slf4j
 public class ConcreteDrlSynchronizer implements DrlSynchronizer {
 
     private final DGCApiService dgcApiService;
@@ -28,26 +31,36 @@ public class ConcreteDrlSynchronizer implements DrlSynchronizer {
         while (doWhile) {
             CertificateRevocationList certificateRevocationList =
                 dgcApiService.getCertificateRevocationList(version, chunk);
-            List<RevokedPass> toAdd = new ArrayList<>();
-            certificateRevocationList.getRevokedUcvi()
-                .forEach(s -> toAdd.add(RevokedPass.builder().hashedUVCI(s).build()));
-            revokedPassDAO.persist(toAdd);
-            ofNullable(certificateRevocationList.getDelta()).ifPresent(this::handleDelta);
-            revokedPassDAO.flush();
+            ofNullable(certificateRevocationList.getDelta()).ifPresentOrElse(handleDiff(),
+                handleSnapshot(certificateRevocationList.getRevokedUcvi()));
             doWhile =
                 certificateRevocationList.getChunk() < certificateRevocationList.getLastChunk();
             version = certificateRevocationList.getFromVersion();
             chunk = certificateRevocationList.getChunk() + 1;
         }
+        log.info("I have " + revokedPassDAO.count() + " revoked passes saved");
         //TODO salvarsi ultima version e chunk a cui si è arrivati da qualche parte, trovare pure il modo per schedulare questa attività in modo tale che venga fatta ad intervalli regolari
 
     }
 
-    private void handleDelta(Delta delta) {
-        ofNullable(delta.getDeletions())
-            .ifPresent(deletions -> deletions.forEach(revokedPassDAO::deleteById));
-        ofNullable(delta.getInsertions())
-            .ifPresent(insertions -> insertions.forEach(s ->
-                revokedPassDAO.persist(RevokedPass.builder().hashedUVCI(s).build())));
+    private Consumer<Delta> handleDiff() {
+        return delta -> {
+            ofNullable(delta.getDeletions())
+                .ifPresent(deletions -> deletions.forEach(revokedPassDAO::deleteById));
+            ofNullable(delta.getInsertions())
+                .ifPresent(insertions -> insertions.forEach(s ->
+                    revokedPassDAO.persist(RevokedPass.builder()
+                        .hashedUVCI(s)
+                        .build())));
+        };
+    }
+
+    private Runnable handleSnapshot(List<String> revokedUcvis) {
+        return () -> {
+            List<RevokedPass> toAdd = new ArrayList<>();
+            revokedUcvis.forEach(s -> toAdd.add(RevokedPass.builder().hashedUVCI(s).build()));
+            revokedPassDAO.persist(toAdd);
+            revokedPassDAO.flush();
+        };
     }
 }
