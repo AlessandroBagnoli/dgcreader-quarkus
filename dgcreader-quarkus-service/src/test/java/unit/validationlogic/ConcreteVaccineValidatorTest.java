@@ -1,7 +1,7 @@
 package unit.validationlogic;
 
-import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
-import static com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
+import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
+import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
 import static java.util.Collections.singletonList;
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,12 +17,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
-import com.bagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
-import com.bagnoli.verificac19.dto.ValidationScanMode;
-import com.bagnoli.verificac19.service.downloaders.SettingsRetriever;
-import com.bagnoli.verificac19.service.validationlogic.ConcreteVaccineValidator;
-import com.bagnoli.verificac19.service.validationlogic.RevokedAndBlacklistedChecker;
+import com.github.alessandrobagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
+import com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
+import com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode;
+import com.github.alessandrobagnoli.verificac19.service.downloaders.SettingsRetriever;
+import com.github.alessandrobagnoli.verificac19.service.validationlogic.ConcreteVaccineValidator;
+import com.github.alessandrobagnoli.verificac19.service.validationlogic.RevokedAndBlacklistedChecker;
 
 import se.digg.dgc.payload.v1.PersonName;
 import se.digg.dgc.payload.v1.VaccinationEntry;
