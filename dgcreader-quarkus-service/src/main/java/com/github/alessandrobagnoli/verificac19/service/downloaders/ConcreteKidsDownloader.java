@@ -4,7 +4,7 @@ import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
 
-import com.github.alessandrobagnoli.verificac19.service.restclient.DGCApiService;
+import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
 
 import io.quarkus.cache.CacheResult;
 import lombok.RequiredArgsConstructor;

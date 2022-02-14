@@ -12,7 +12,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.alessandrobagnoli.verificac19.service.restclient.DGCApiService;
+import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
 
 import io.quarkus.cache.CacheResult;
 import lombok.RequiredArgsConstructor;

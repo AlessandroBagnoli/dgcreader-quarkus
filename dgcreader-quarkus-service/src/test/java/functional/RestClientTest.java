@@ -18,7 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
 import com.github.alessandrobagnoli.verificac19.dto.Setting;
-import com.github.alessandrobagnoli.verificac19.service.restclient.DGCApiService;
+import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
 
 import io.quarkus.test.junit.QuarkusTest;
 import lombok.SneakyThrows;

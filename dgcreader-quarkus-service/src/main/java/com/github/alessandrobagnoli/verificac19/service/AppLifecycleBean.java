@@ -28,11 +28,13 @@ public class AppLifecycleBean {
         log.info("Downloading certificates...");
         certificatesDownloader.download();
         log.info("Done downloading certificates.");
-        log.info("Downloading settings...");
+        log.info("Downloading settings and blacklisted...");
         settingsDownloader.downloadSettings();
-        log.info("Downloading settings...");
+        log.info("Done downloading settings and blacklisted.");
+        log.info("Downloading drl...");
         drlChecker.check(0L, 0L);
         drlSynchronizer.synchronize(0L, 0L);
-        log.info("Done downloading drl, application up and running!");
+        log.info("Done downloading drl");
+        log.info("Application up and running!");
     }
 }

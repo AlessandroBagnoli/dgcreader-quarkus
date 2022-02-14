@@ -11,7 +11,7 @@ import javax.enterprise.context.ApplicationScoped;
 import com.github.alessandrobagnoli.verificac19.dao.RevokedPassDAO;
 import com.github.alessandrobagnoli.verificac19.dto.CertificateRevocationList;
 import com.github.alessandrobagnoli.verificac19.model.RevokedPass;
-import com.github.alessandrobagnoli.verificac19.service.restclient.DGCApiService;
+import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
