@@ -78,7 +78,7 @@ class ConcreteVaccineValidatorTest {
 
         // when
         CertificateStatus response =
-            underTest.calculateValidity(dgc, ValidationScanMode.NORMAL_DGP);
+            underTest.calculateValidity(dgc, ValidationScanMode.BASE_DGP);
 
         // then
         assertEquals(NOT_VALID_YET, response);
@@ -122,7 +122,7 @@ class ConcreteVaccineValidatorTest {
 
         // when
         CertificateStatus response =
-            underTest.calculateValidity(dgc, ValidationScanMode.NORMAL_DGP);
+            underTest.calculateValidity(dgc, ValidationScanMode.BASE_DGP);
 
         // then
         assertEquals(VALID, response);

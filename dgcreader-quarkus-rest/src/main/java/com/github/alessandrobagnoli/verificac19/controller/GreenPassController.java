@@ -36,7 +36,7 @@ public class GreenPassController {
     @Produces(MediaType.APPLICATION_JSON)
     public GPValidResponse validateString(
         @NonNull @QueryParam("base45") String base45EncodedGP,
-        @DefaultValue(ValidationScanMode.Constants.NORMAL_DGP_VALUE) @QueryParam("validationScanMode")
+        @DefaultValue(ValidationScanMode.Constants.BASE_DGP_VALUE) @QueryParam("validationScanMode")
             ValidationScanMode validationScanMode) {
         return this.greenPassService.validate(base45EncodedGP, validationScanMode);
     }
@@ -47,7 +47,7 @@ public class GreenPassController {
     @Produces(MediaType.APPLICATION_JSON)
     public GPValidResponse validateImage(
         @MultipartForm Form form,
-        @DefaultValue(ValidationScanMode.Constants.NORMAL_DGP_VALUE) @QueryParam("validationScanMode")
+        @DefaultValue(ValidationScanMode.Constants.BASE_DGP_VALUE) @QueryParam("validationScanMode")
             ValidationScanMode validationScanMode) {
         return this.greenPassService.validate(form.getQrCode(), validationScanMode);
     }

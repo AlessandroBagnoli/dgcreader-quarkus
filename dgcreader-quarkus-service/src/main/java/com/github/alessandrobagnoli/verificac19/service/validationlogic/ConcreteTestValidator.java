@@ -1,16 +1,27 @@
 package com.github.alessandrobagnoli.verificac19.service.validationlogic;
 
+import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID;
+import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
+import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.BASE_DGP;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.STUDENTS_DGP;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 
 import com.github.alessandrobagnoli.verificac19.customdecoder.EnrichedDigitalCovidCertificate;
+import com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode;
 import com.github.alessandrobagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.SettingsRetriever;
-import com.github.alessandrobagnoli.verificac19.dto.GPValidResponse;
 
 import lombok.RequiredArgsConstructor;
 import se.digg.dgc.payload.v1.TestEntry;
@@ -34,11 +45,36 @@ public class ConcreteTestValidator implements TestValidator {
     private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
 
     @Override
-    public GPValidResponse.CertificateStatus calculateValidity(
-        EnrichedDigitalCovidCertificate digitalCovidCertificate,
-        ValidationScanMode validationScanMode) {
-        TestEntry testEntry = digitalCovidCertificate.getT().stream()
-            .reduce((first, second) -> second)
+    public CertificateStatus calculateValidity(EnrichedDigitalCovidCertificate dgc,
+        ValidationScanMode scanMode) {
+
+        if (isNotValid(scanMode)) {
+            return NOT_VALID;
+        }
+
+        return isNotValidForWork(dgc, scanMode) ?
+            NOT_VALID :
+            getValidity(dgc, scanMode);
+
+    }
+
+    private boolean isNotValid(ValidationScanMode scanMode) {
+        return scanMode == RSA_VISITORS_DGP || scanMode == ENHANCED_DGP
+            || scanMode == STUDENTS_DGP;
+    }
+
+    private boolean isNotValidForWork(EnrichedDigitalCovidCertificate dgc,
+        ValidationScanMode scanMode) {
+        LocalDate now = LocalDate.now();
+        LocalDate dateOfBirth = dgc.getDateOfBirth().asLocalDate();
+        long personAge = ChronoUnit.YEARS.between(dateOfBirth, now);
+        return scanMode == WORK_DGP && personAge >= 50;
+    }
+
+    private CertificateStatus getValidity(EnrichedDigitalCovidCertificate dgc,
+        ValidationScanMode scanMode) {
+        TestEntry testEntry = dgc.getT().stream()
+            .findFirst()
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No tests found"));
         String testType = testEntry.getTt();
         String testResult = testEntry.getTr();
@@ -47,14 +83,14 @@ public class ConcreteTestValidator implements TestValidator {
         LocalDateTime now = LocalDateTime.now();
         String certificateIdentifier = testEntry.getCi();
 
-        Optional<GPValidResponse.CertificateStatus> check =
+        Optional<CertificateStatus> check =
             revokedAndBlacklistedChecker.check(certificateIdentifier);
         if (check.isPresent()) {
             return check.get();
         }
 
         if (DETECTED.equals(testResult)) {
-            return GPValidResponse.CertificateStatus.NOT_VALID;
+            return NOT_VALID;
         }
 
         LocalDateTime startDateTime;
@@ -71,19 +107,18 @@ public class ConcreteTestValidator implements TestValidator {
             endDateTime = dateTimeOfSampleCollection.plusHours(
                 settingsRetriever.getSettingValue(MOLECULAR_TEST_END_HOUR, SETTING_TYPE));
         } else {
-            return GPValidResponse.CertificateStatus.NOT_VALID;
+            return NOT_VALID;
         }
 
         if (startDateTime.isAfter(now)) {
-            return GPValidResponse.CertificateStatus.NOT_VALID_YET;
+            return NOT_VALID_YET;
         }
 
         if (now.isAfter(endDateTime)) {
-            return GPValidResponse.CertificateStatus.NOT_VALID;
+            return NOT_VALID;
         }
 
-        return validationScanMode == ValidationScanMode.NORMAL_DGP ? GPValidResponse.CertificateStatus.VALID : GPValidResponse.CertificateStatus.NOT_VALID;
-
+        return scanMode == BASE_DGP ? VALID : NOT_VALID;
     }
 
 }

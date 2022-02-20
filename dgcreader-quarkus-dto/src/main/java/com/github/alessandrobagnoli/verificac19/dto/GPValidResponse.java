@@ -32,6 +32,7 @@ public class GPValidResponse {
     public enum CertificateStatus {
         NOT_VALID,
         NOT_VALID_YET, 
+        EXPIRED,
         VALID, 
         REVOKED, 
         NOT_EU_DCC, 

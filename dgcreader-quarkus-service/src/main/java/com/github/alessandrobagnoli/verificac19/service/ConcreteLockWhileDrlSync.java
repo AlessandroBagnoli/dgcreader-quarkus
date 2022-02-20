@@ -23,10 +23,15 @@ public class ConcreteLockWhileDrlSync implements LockWhileDrlSync {
     public void unlock() {
         semaphore.release();
     }
-    
+
     @Override
     public boolean isLocked() {
-        return semaphore.availablePermits() == 0;
+        if (semaphore.tryAcquire()) {
+            semaphore.release();
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

@@ -3,8 +3,8 @@ package com.github.alessandrobagnoli.verificac19.service.downloaders;
 import static com.github.alessandrobagnoli.verificac19.utility.CertificateUtilities.convertToX509Cert;
 
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -25,13 +25,13 @@ public class ConcreteCertificatesDownloader implements CertificatesDownloader {
     private final DGCApiService dgcApiService;
 
     @Override
-    public List<X509Certificate> download() {
+    public Map<String, X509Certificate> download() {
         return getCertificates();
     }
 
     @CacheResult(cacheName = "certificates-cache")
-    List<X509Certificate> getCertificates() {
-        List<X509Certificate> signerCertificates = new ArrayList<>();
+    Map<String, X509Certificate> getCertificates() {
+        Map<String, X509Certificate> signerCertificates = new HashMap<>();
         Set<String> kids = kidsDownloader.download();
         boolean doWhile = true;
         String resumeToken = StringUtils.EMPTY;
@@ -41,7 +41,7 @@ public class ConcreteCertificatesDownloader implements CertificatesDownloader {
             if (kids.contains(kid)) {
                 resumeToken = response.getHeaderString("X-RESUME-TOKEN");
                 String certificate = response.readEntity(String.class);
-                signerCertificates.add(convertToX509Cert(certificate));
+                signerCertificates.put(kid, convertToX509Cert(certificate));
             } else {
                 doWhile = false;
             }

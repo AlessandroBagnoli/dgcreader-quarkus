@@ -4,7 +4,7 @@ import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.Certi
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.TEST_NEEDED;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.BOOSTER_DGP;
+import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
         EnrichedDigitalCovidCertificate digitalCovidCertificate,
         ValidationScanMode validationScanMode) {
         VaccinationEntry vaccinationEntry = digitalCovidCertificate.getV().stream()
-            .reduce((first, second) -> second)
+            .findFirst()
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No vaccines found"));
 
         String vaccinationType = vaccinationEntry.getMp();
@@ -83,7 +83,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
             return NOT_VALID;
         } else {
             //If the basic controls are passed, we have to check for booster validity with particular attention to johnson vaccine type
-            if (validationScanMode == BOOSTER_DGP &&
+            if (validationScanMode == RSA_VISITORS_DGP &&
                 testNeeded(vaccinationType, doseNumber, totalSeriesOfDoses)) {
                 return TEST_NEEDED;
             }
