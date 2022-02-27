@@ -37,13 +37,25 @@ public class ConcreteVaccineValidator implements VaccineValidator {
     private static final String VACCINE_END_DAY_NOT_COMPLETE = "vaccine_end_day_not_complete";
     private static final String VACCINE_START_DAY_COMPLETE = "vaccine_start_day_complete";
     private static final String VACCINE_END_DAY_COMPLETE = "vaccine_end_day_complete";
+    private static final String VACCINE_START_DAY_COMPLETE_IT = "vaccine_start_day_complete_IT";
+    private static final String VACCINE_END_DAY_COMPLETE_IT = "vaccine_end_day_complete_IT";
+    private static final String VACCINE_START_DAY_BOOSTER_IT = "vaccine_start_day_booster_IT";
+    private static final String VACCINE_END_DAY_BOOSTER_IT = "vaccine_end_day_booster_IT";
+    private static final String VACCINE_START_DAY_COMPLETE_NOT_IT =
+        "vaccine_start_day_complete_NOT_IT";
+    private static final String VACCINE_END_DAY_COMPLETE_NOT_IT = "vaccine_end_day_complete_NOT_IT";
+    private static final String VACCINE_START_DAY_BOOSTER_NOT_IT =
+        "vaccine_start_day_booster_NOT_IT";
+    private static final String VACCINE_END_DAY_BOOSTER_NOT_IT = "vaccine_end_day_booster_NOT_IT";
+    private static final String VACCINE_END_DAY_COMPLETE_EXTENDED_EMA =
+        "vaccine_end_day_complete_extended_EMA";
     private static final String JOHNSON = "EU/1/20/1525";
     private static final String SPUTNIK = "Sputnik-V";
     private static final String PARTIAL = "PARTIAL";
-    private static final String RECALL = "RECALL";
     private static final String CYCLE = "CYCLE";
+    private static final String BOOSTER = "BOOSTER";
     private static final String EMA_VACCINES = "EMA_vaccines";
-    private static final String TYPE = "GENERIC";
+    private static final String SETTING_TYPE = "GENERIC";
     private static final String COUNTRY_SAN_MARINO = "SM";
 
     private final SettingsRetriever settingsRetriever;
@@ -87,9 +99,8 @@ public class ConcreteVaccineValidator implements VaccineValidator {
 
         String type = calculateType(doseNumber, totalSeriesOfDoses, vaccinationType);
 
-        VaccineValidityRange vaccineValidityRange =
-            calculateValidityRange(doseNumber, totalSeriesOfDoses, vaccinationType,
-                vaccinationDate);
+        VaccineValidityRange vaccineValidityRange = calculateValidityRange(type, vaccinationType,
+            vaccinationDate, country);
 
         if (vaccineValidityRange.getStartDate().isAfter(now)) {
             return NOT_VALID_YET;
@@ -109,7 +120,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
     private CertificateStatus calculateValidityForEMA(ValidationScanMode validationScanMode,
         long personAge, String type, String country, long daysActive) {
         if (validationScanMode == RSA_VISITORS_DGP && !PARTIAL.equals(type)) {
-            return RECALL.equals(type) ? VALID : TEST_NEEDED;
+            return BOOSTER.equals(type) ? VALID : TEST_NEEDED;
         }
         if ((validationScanMode == WORK_DGP && personAge >= 50)
             || validationScanMode == ENHANCED_DGP) {
@@ -118,28 +129,34 @@ public class ConcreteVaccineValidator implements VaccineValidator {
             }
             return daysActive >= 180 && !"IT".equals(country) ? TEST_NEEDED : VALID;
         }
-        //TODO verificare
-        return VALID;
+        if (validationScanMode == IT_ENTRY_DGP && !type.equals(PARTIAL)
+            || validationScanMode == WORK_DGP || validationScanMode == BASE_DGP) {
+            return VALID;
+        }
+        return NOT_VALID;
     }
 
     private String calculateType(Integer doseNumber, Integer totalSeriesOfDoses,
         String vaccinationType) {
-        if (doseNumber < totalSeriesOfDoses) {
+        if (isPartial(doseNumber, totalSeriesOfDoses)) {
             return PARTIAL;
         }
-        if (doseNumber > totalSeriesOfDoses) {
-            return RECALL;
-        }
-        if ((JOHNSON.equals(vaccinationType) && doseNumber >= 2)
-            || !JOHNSON.equals(vaccinationType) && doseNumber >= 3) {
-            return RECALL;
-        } else {
-            return CYCLE;
-        }
+        return isBooster(doseNumber, totalSeriesOfDoses, vaccinationType) ? BOOSTER : CYCLE;
+    }
+
+    private boolean isBooster(Integer doseNumber, Integer totalSeriesOfDoses,
+        String vaccinationType) {
+        return doseNumber > totalSeriesOfDoses
+            || (JOHNSON.equals(vaccinationType) && doseNumber >= 2)
+            || (!JOHNSON.equals(vaccinationType) && doseNumber >= 3);
+    }
+
+    private boolean isPartial(Integer doseNumber, Integer totalSeriesOfDoses) {
+        return doseNumber < totalSeriesOfDoses;
     }
 
     private boolean isEMA(String vaccinationType, String country) {
-        String values = settingsRetriever.getSettingValueAsString(EMA_VACCINES, TYPE);
+        String values = settingsRetriever.getSettingValueAsString(EMA_VACCINES, SETTING_TYPE);
         boolean isStandardEma = ofNullable(values)
             .map(s -> Arrays.asList(s.split(";")).contains(vaccinationType))
             .orElse(false);
@@ -158,7 +175,7 @@ public class ConcreteVaccineValidator implements VaccineValidator {
             || (validationScanMode == RSA_VISITORS_DGP && PARTIAL.equals(type))) {
             return NOT_VALID;
         }
-        if (validationScanMode == WORK_DGP
+        if ((validationScanMode == WORK_DGP && !PARTIAL.equals(type))
             || validationScanMode == RSA_VISITORS_DGP
             || (validationScanMode == ENHANCED_DGP && !PARTIAL.equals(type))) {
             return TEST_NEEDED;
@@ -166,26 +183,65 @@ public class ConcreteVaccineValidator implements VaccineValidator {
         return NOT_VALID;
     }
 
-    private VaccineValidityRange calculateValidityRange(Integer doseNumber,
-        Integer totalSeriesOfDoses, String vaccinationType, LocalDate vaccinationDate) {
+    private VaccineValidityRange calculateValidityRange(String type, String vaccinationType,
+        LocalDate vaccinationDate, String country) {
         LocalDate startDate;
         LocalDate endDate;
-        if (doseNumber < totalSeriesOfDoses) {
-            startDate = vaccinationDate.plusDays(
-                settingsRetriever.getSettingValue(VACCINE_START_DAY_NOT_COMPLETE,
-                    vaccinationType));
-            endDate = vaccinationDate.plusDays(
-                settingsRetriever.getSettingValue(VACCINE_END_DAY_NOT_COMPLETE, vaccinationType));
-        } else {
-            startDate = vaccinationDate.plusDays(
-                settingsRetriever.getSettingValue(VACCINE_START_DAY_COMPLETE, vaccinationType));
-            endDate = vaccinationDate.plusDays(
-                settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, vaccinationType));
+        switch (type) {
+            case PARTIAL:
+                startDate = vaccinationDate.plusDays(
+                    settingsRetriever.getSettingValue(VACCINE_START_DAY_NOT_COMPLETE,
+                        vaccinationType));
+                endDate = vaccinationDate.plusDays(
+                    settingsRetriever.getSettingValue(VACCINE_END_DAY_NOT_COMPLETE,
+                        vaccinationType));
+                break;
+            case CYCLE:
+                startDate = vaccinationDate.plusDays(
+                    getVaccineStartDayCompleteByCountry(country, vaccinationType));
+                endDate = vaccinationDate.plusDays(
+                    getVaccineEndDayCompleteByCountry(country, vaccinationType));
+                break;
+            case BOOSTER:
+            default:
+                startDate = vaccinationDate.plusDays(getVaccineStartDayBoosterByCountry(country));
+                endDate = vaccinationDate.plusDays(getVaccineEndDayBoosterByCountry(country));
+                break;
         }
         return VaccineValidityRange.builder()
             .startDate(startDate)
             .endDate(endDate)
             .build();
+    }
+
+    private Integer getVaccineStartDayCompleteByCountry(String countryCode, String vaccineType) {
+        int daysToAdd = settingsRetriever.getSettingValue(VACCINE_START_DAY_COMPLETE, vaccineType);
+        return "IT".equals(countryCode) ?
+            settingsRetriever.getSettingValue(VACCINE_START_DAY_COMPLETE_IT, SETTING_TYPE)
+                + daysToAdd :
+            settingsRetriever.getSettingValue(VACCINE_START_DAY_COMPLETE_NOT_IT, SETTING_TYPE)
+                + daysToAdd;
+    }
+
+    private Integer getVaccineEndDayCompleteByCountry(String countryCode, String vaccineType) {
+        int daysToAdd = settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, vaccineType);
+        return "IT".equals(countryCode) ?
+            settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE_IT, SETTING_TYPE)
+                + daysToAdd :
+            settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE_NOT_IT, SETTING_TYPE)
+                + daysToAdd;
+    }
+
+    private Integer getVaccineStartDayBoosterByCountry(String countryCode) {
+        return "IT".equals(countryCode) ?
+            settingsRetriever.getSettingValue(VACCINE_START_DAY_BOOSTER_IT, SETTING_TYPE) :
+            settingsRetriever.getSettingValue(VACCINE_START_DAY_BOOSTER_NOT_IT, SETTING_TYPE);
+    }
+
+    private Integer getVaccineEndDayBoosterByCountry(String countryCode) {
+        return "IT".equals(countryCode) ?
+            settingsRetriever.getSettingValue(VACCINE_END_DAY_BOOSTER_IT, SETTING_TYPE) :
+            settingsRetriever.getSettingValue(VACCINE_END_DAY_BOOSTER_NOT_IT, SETTING_TYPE);
     }
 
 }
