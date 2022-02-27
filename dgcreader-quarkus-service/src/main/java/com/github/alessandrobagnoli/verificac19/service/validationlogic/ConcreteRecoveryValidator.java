@@ -1,6 +1,5 @@
 package com.github.alessandrobagnoli.verificac19.service.validationlogic;
 
-import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.EXPIRED;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.TEST_NEEDED;
@@ -8,7 +7,6 @@ import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.Certi
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.IT_ENTRY_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.STUDENTS_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
 import static java.util.Optional.ofNullable;
 
@@ -90,13 +88,6 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
 
         return validationScanMode == RSA_VISITORS_DGP ?
             isTestNeededForRSAVisitors(recoveryBis) :
-            evaluateExpired(validationScanMode, countryCode, daysActive);
-    }
-
-    private CertificateStatus evaluateExpired(ValidationScanMode validationScanMode,
-        String countryCode, long daysActive) {
-        return validationScanMode == STUDENTS_DGP && daysActive >= 120 ?
-            EXPIRED :
             evaluateOtherCases(validationScanMode, countryCode, daysActive);
     }
 

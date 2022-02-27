@@ -1,6 +1,5 @@
 package com.github.alessandrobagnoli.verificac19.service.validationlogic;
 
-import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.EXPIRED;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.TEST_NEEDED;
@@ -9,7 +8,6 @@ import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.BA
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.IT_ENTRY_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.STUDENTS_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
 import static java.util.Optional.ofNullable;
 
@@ -113,13 +111,6 @@ public class ConcreteVaccineValidator implements VaccineValidator {
         if (validationScanMode == RSA_VISITORS_DGP && !PARTIAL.equals(type)) {
             return RECALL.equals(type) ? VALID : TEST_NEEDED;
         }
-        if (validationScanMode == STUDENTS_DGP && !PARTIAL.equals(type)) {
-            if (RECALL.equals(type)) {
-                return VALID;
-            } else {
-                return daysActive < 120 ? VALID : EXPIRED;
-            }
-        }
         if ((validationScanMode == WORK_DGP && personAge >= 50)
             || validationScanMode == ENHANCED_DGP) {
             if (!CYCLE.equals(type)) {
@@ -162,7 +153,6 @@ public class ConcreteVaccineValidator implements VaccineValidator {
     private CertificateStatus calculateValidityForNotEMA(ValidationScanMode validationScanMode,
         long personAge, String type) {
         if (validationScanMode == BASE_DGP
-            || validationScanMode == STUDENTS_DGP
             || validationScanMode == IT_ENTRY_DGP
             || (validationScanMode == WORK_DGP && personAge < 50)
             || (validationScanMode == RSA_VISITORS_DGP && PARTIAL.equals(type))) {

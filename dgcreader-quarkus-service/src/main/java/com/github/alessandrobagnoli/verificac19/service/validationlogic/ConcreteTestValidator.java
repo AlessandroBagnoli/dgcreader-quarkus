@@ -6,7 +6,6 @@ import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.Certi
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.BASE_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.STUDENTS_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
 
 import java.time.LocalDate;
@@ -59,8 +58,7 @@ public class ConcreteTestValidator implements TestValidator {
     }
 
     private boolean isNotValid(ValidationScanMode scanMode) {
-        return scanMode == RSA_VISITORS_DGP || scanMode == ENHANCED_DGP
-            || scanMode == STUDENTS_DGP;
+        return scanMode == RSA_VISITORS_DGP || scanMode == ENHANCED_DGP;
     }
 
     private boolean isNotValidForWork(EnrichedDigitalCovidCertificate dgc,
