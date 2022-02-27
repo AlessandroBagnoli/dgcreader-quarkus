@@ -291,7 +291,7 @@ class ConcreteVaccineValidatorTest {
     }
 
     @Test
-    void testNeeded_when_PartialCycleEnhancedVerificationNotEma() {
+    void notValid_when_PartialCycleRSAVisitorsVerificationNotEma() {
         // given
         EnrichedDigitalCovidCertificate dgc =
             (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
@@ -335,7 +335,7 @@ class ConcreteVaccineValidatorTest {
     }
 
     @Test
-    void testNeeded_when_PartialCycleEnhancedVerificationEma() {
+    void notValid_when_PartialCycleRSAVisitorsVerificationEma() {
         // given
         EnrichedDigitalCovidCertificate dgc =
             (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
@@ -509,96 +509,6 @@ class ConcreteVaccineValidatorTest {
         // when
         CertificateStatus response =
             underTest.calculateValidity(dgc, ENHANCED_DGP);
-
-        // then
-        assertEquals(NOT_VALID, response);
-    }
-
-    @Test
-    void notValid_when_PartialCycleRSAVerificationNotEma() {
-        // given
-        EnrichedDigitalCovidCertificate dgc =
-            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
-                .withDob(LocalDate.of(1900, 1, 1))
-                .withNam(
-                    new PersonName()
-                        .withFn("Mario")
-                        .withFnt("Mario")
-                        .withGn("Rossi")
-                        .withGnt("Rossi")
-                )
-                .withV(singletonList(
-                        new VaccinationEntry()
-                            .withCo("IT")
-                            .withCi("fakeID")
-                            .withDn(1)
-                            .withDt(LocalDate.of(2022, 1, 10))
-                            .withIs("")
-                            .withMa("")
-                            .withMp("anyProduct")
-                            .withSd(2)
-                            .withTg("")
-                            .withVp("")
-                    )
-                );
-        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
-            250);
-        given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),
-            any())).willReturn(0);
-        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_NOT_COMPLETE),
-            any())).willReturn(3000);
-        given(settingsRetriever.getSettingValueAsString(eq(EMA_VACCINES), any())).willReturn(
-            "notInList");
-
-        // when
-        CertificateStatus response =
-            underTest.calculateValidity(dgc, RSA_VISITORS_DGP);
-
-        // then
-        assertEquals(NOT_VALID, response);
-    }
-
-    @Test
-    void notValid_when_PartialCycleITEntryVerificationNotEma() {
-        // given
-        EnrichedDigitalCovidCertificate dgc =
-            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
-                .withDob(LocalDate.of(1900, 1, 1))
-                .withNam(
-                    new PersonName()
-                        .withFn("Mario")
-                        .withFnt("Mario")
-                        .withGn("Rossi")
-                        .withGnt("Rossi")
-                )
-                .withV(singletonList(
-                        new VaccinationEntry()
-                            .withCo("IT")
-                            .withCi("fakeID")
-                            .withDn(1)
-                            .withDt(LocalDate.of(2022, 1, 10))
-                            .withIs("")
-                            .withMa("")
-                            .withMp("anyProduct")
-                            .withSd(2)
-                            .withTg("")
-                            .withVp("")
-                    )
-                );
-        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_COMPLETE), any())).willReturn(
-            250);
-        given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_NOT_COMPLETE),
-            any())).willReturn(0);
-        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_NOT_COMPLETE),
-            any())).willReturn(3000);
-        given(settingsRetriever.getSettingValueAsString(eq(EMA_VACCINES), any())).willReturn(
-            "notInList");
-
-        // when
-        CertificateStatus response =
-            underTest.calculateValidity(dgc, RSA_VISITORS_DGP);
 
         // then
         assertEquals(NOT_VALID, response);
