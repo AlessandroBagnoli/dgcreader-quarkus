@@ -21,9 +21,11 @@ import com.github.alessandrobagnoli.verificac19.dto.Setting;
 import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import lombok.SneakyThrows;
 
 @QuarkusTest
+@TestProfile(config.TestProfile.class)
 class RestClientTest {
 
     @Inject

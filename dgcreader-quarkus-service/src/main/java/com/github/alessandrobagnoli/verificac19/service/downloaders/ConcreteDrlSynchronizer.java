@@ -10,8 +10,10 @@ import javax.enterprise.context.ApplicationScoped;
 
 import com.github.alessandrobagnoli.verificac19.dao.RevokedPassDAO;
 import com.github.alessandrobagnoli.verificac19.dto.CertificateRevocationList;
+import com.github.alessandrobagnoli.verificac19.dto.CrlStatus;
 import com.github.alessandrobagnoli.verificac19.model.RevokedPass;
 import com.github.alessandrobagnoli.verificac19.service.DGCApiService;
+import com.github.alessandrobagnoli.verificac19.service.downloaders.DrlStatusStore.DrlStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,36 +24,71 @@ import lombok.extern.slf4j.Slf4j;
 public class ConcreteDrlSynchronizer implements DrlSynchronizer {
 
     private final DGCApiService dgcApiService;
+    private final DrlStatusStore drlStatusStore;
     private final RevokedPassDAO revokedPassDAO;
 
     @Override
-    public void synchronize(Long version, Long chunk) {
+    public void synchronize() {
+        evaluateSync();
+        postSyncCheck();
+    }
+
+    private void evaluateSync() {
+        DrlStatus drlStatus = drlStatusStore.getDrlStatus();
+        Long inStoreVersion = drlStatus.getVersion();
+        long chunk = 0L;
+        CrlStatus preSync = dgcApiService.getCRLStatus(inStoreVersion, chunk);
+        Long preSyncVersion = preSync.getVersion();
+        if (preSyncVersion > inStoreVersion) {
+            performSync(inStoreVersion, chunk);
+        }
+    }
+
+    private void performSync(Long version, long chunk) {
         boolean doWhile = true;
         while (doWhile) {
             CertificateRevocationList certificateRevocationList =
                 dgcApiService.getCertificateRevocationList(version, chunk);
             ofNullable(certificateRevocationList.getDelta()).ifPresentOrElse(handleDiff(),
                 handleSnapshot(certificateRevocationList.getRevokedUcvi()));
-            doWhile =
-                certificateRevocationList.getChunk() < certificateRevocationList.getLastChunk();
             version = certificateRevocationList.getFromVersion();
             chunk = certificateRevocationList.getChunk() + 1;
+            doWhile =
+                certificateRevocationList.getChunk() < certificateRevocationList.getLastChunk();
         }
         log.info("I have " + revokedPassDAO.count() + " revoked passes saved");
-        //TODO salvarsi ultima version e chunk a cui si è arrivati da qualche parte, trovare pure il modo per schedulare questa attività in modo tale che venga fatta ad intervalli regolari
+    }
 
+    private void postSyncCheck() {
+        CrlStatus postSync = dgcApiService.getCRLStatus(0L, 0L);
+        if (postSync.getTotalNumberUCVI().equals(revokedPassDAO.count())) {
+            drlStatusStore.setDrlStatus(DrlStatus.builder()
+                .version(postSync.getVersion())
+                .build());
+        } else {
+            revokedPassDAO.deleteAll();
+            revokedPassDAO.flush();
+            drlStatusStore.resetDrlStatus();
+            synchronize();
+        }
     }
 
     private Consumer<CertificateRevocationList.Delta> handleDiff() {
         return delta -> {
-            ofNullable(delta.getDeletions())
-                .ifPresent(deletions -> deletions.forEach(revokedPassDAO::deleteById));
-            ofNullable(delta.getInsertions())
-                .ifPresent(insertions -> insertions.forEach(s ->
-                    revokedPassDAO.persist(RevokedPass.builder()
-                        .hashedUVCI(s)
-                        .build())));
+            ofNullable(delta.getDeletions()).ifPresent(handleDeletions());
+            ofNullable(delta.getInsertions()).ifPresent(handleInsertions());
         };
+    }
+
+    private Consumer<List<String>> handleDeletions() {
+        return deletions -> deletions.forEach(revokedPassDAO::deleteById);
+    }
+
+    private Consumer<List<String>> handleInsertions() {
+        return insertions -> insertions.forEach(s ->
+            revokedPassDAO.persist(RevokedPass.builder()
+                .hashedUVCI(s)
+                .build()));
     }
 
     private Runnable handleSnapshot(List<String> revokedUcvis) {

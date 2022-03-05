@@ -5,7 +5,6 @@ import javax.enterprise.event.Observes;
 import javax.transaction.Transactional;
 
 import com.github.alessandrobagnoli.verificac19.service.downloaders.CertificatesDownloader;
-import com.github.alessandrobagnoli.verificac19.service.downloaders.DrlChecker;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.DrlSynchronizer;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.SettingsDownloader;
 
@@ -21,7 +20,6 @@ public class AppLifecycleBean {
 
     private final CertificatesDownloader certificatesDownloader;
     private final SettingsDownloader settingsDownloader;
-    private final DrlChecker drlChecker;
     private final DrlSynchronizer drlSynchronizer;
 
     void onStart(@Observes StartupEvent ev) {
@@ -32,8 +30,7 @@ public class AppLifecycleBean {
         settingsDownloader.downloadSettings();
         log.info("Done downloading settings and blacklisted.");
         log.info("Downloading drl...");
-        drlChecker.check(0L, 0L);
-        drlSynchronizer.synchronize(0L, 0L);
+        drlSynchronizer.synchronize();
         log.info("Done downloading drl");
         log.info("Application up and running!");
     }

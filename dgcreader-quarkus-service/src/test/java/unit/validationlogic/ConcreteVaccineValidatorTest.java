@@ -1,6 +1,5 @@
 package unit.validationlogic;
 
-import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.EXPIRED;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.TEST_NEEDED;
@@ -201,7 +200,7 @@ class ConcreteVaccineValidatorTest {
     }
 
     @Test
-    void testNeeded_when_firstAndLastDoseOfJohnsonWorkVerification() {
+    void valid_when_firstAndLastDoseOfJohnsonWorkVerification() {
         // given
         EnrichedDigitalCovidCertificate dgc =
             (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
@@ -246,7 +245,7 @@ class ConcreteVaccineValidatorTest {
     }
 
     @Test
-    void testNeeded_when_firstAndLastDoseOfJohnsonEnhancedVerification() {
+    void valid_when_firstAndLastDoseOfJohnsonEnhancedVerification() {
         // given
         EnrichedDigitalCovidCertificate dgc =
             (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
@@ -284,7 +283,7 @@ class ConcreteVaccineValidatorTest {
 
         // when
         CertificateStatus response =
-            underTest.calculateValidity(dgc, WORK_DGP);
+            underTest.calculateValidity(dgc, ENHANCED_DGP);
 
         // then
         assertEquals(VALID, response);
@@ -418,7 +417,7 @@ class ConcreteVaccineValidatorTest {
 
         // when
         CertificateStatus response =
-            underTest.calculateValidity(dgc, WORK_DGP);
+            underTest.calculateValidity(dgc, ENHANCED_DGP);
 
         // then
         assertEquals(VALID, response);
@@ -602,6 +601,96 @@ class ConcreteVaccineValidatorTest {
         // when
         CertificateStatus response =
             underTest.calculateValidity(dgc, WORK_DGP);
+
+        // then
+        assertEquals(TEST_NEEDED, response);
+    }
+
+    @Test
+    void valid_whenBoosterRSAVerificationEmaNotIT() {
+        // given
+        EnrichedDigitalCovidCertificate dgc =
+            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
+                .withDob(LocalDate.of(1900, 1, 1))
+                .withNam(
+                    new PersonName()
+                        .withFn("Mario")
+                        .withFnt("Mario")
+                        .withGn("Rossi")
+                        .withGnt("Rossi")
+                )
+                .withV(singletonList(
+                        new VaccinationEntry()
+                            .withCo("NOT_IT")
+                            .withCi("fakeID")
+                            .withDn(3)
+                            .withDt(LocalDate.of(2021, 1, 10))
+                            .withIs("")
+                            .withMa("")
+                            .withMp("anyProduct")
+                            .withSd(3)
+                            .withTg("")
+                            .withVp("")
+                    )
+                );
+        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
+        given(settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, "anyProduct")).willReturn(
+            250);
+        given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_BOOSTER_NOT_IT),
+            any())).willReturn(0);
+        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_BOOSTER_NOT_IT),
+            any())).willReturn(3000);
+        given(settingsRetriever.getSettingValueAsString(eq(EMA_VACCINES), any())).willReturn(
+            "anyProduct");
+
+        // when
+        CertificateStatus response =
+            underTest.calculateValidity(dgc, RSA_VISITORS_DGP);
+
+        // then
+        assertEquals(VALID, response);
+    }
+
+    @Test
+    void testNeeded_whenBoosterRSAVerificationNotEMA() {
+        // given
+        EnrichedDigitalCovidCertificate dgc =
+            (EnrichedDigitalCovidCertificate) new EnrichedDigitalCovidCertificate()
+                .withDob(LocalDate.of(1900, 1, 1))
+                .withNam(
+                    new PersonName()
+                        .withFn("Mario")
+                        .withFnt("Mario")
+                        .withGn("Rossi")
+                        .withGnt("Rossi")
+                )
+                .withV(singletonList(
+                        new VaccinationEntry()
+                            .withCo("NOT_IT")
+                            .withCi("fakeID")
+                            .withDn(3)
+                            .withDt(LocalDate.of(2021, 1, 10))
+                            .withIs("")
+                            .withMa("")
+                            .withMp("anyProduct")
+                            .withSd(3)
+                            .withTg("")
+                            .withVp("")
+                    )
+                );
+        given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
+        given(settingsRetriever.getSettingValue(VACCINE_END_DAY_COMPLETE, "anyProduct")).willReturn(
+            250);
+        given(settingsRetriever.getSettingValue(eq(VACCINE_START_DAY_BOOSTER_NOT_IT),
+            any())).willReturn(0);
+        given(settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_BOOSTER_NOT_IT),
+            any())).willReturn(3000);
+        given(settingsRetriever.getSettingValueAsString(eq(EMA_VACCINES), any())).willReturn(
+            "notInList");
+
+        // when
+        CertificateStatus response =
+            underTest.calculateValidity(dgc, RSA_VISITORS_DGP);
 
         // then
         assertEquals(TEST_NEEDED, response);

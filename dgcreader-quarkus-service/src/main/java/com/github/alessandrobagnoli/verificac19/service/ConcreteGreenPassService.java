@@ -22,20 +22,22 @@ public class ConcreteGreenPassService implements GreenPassService {
 
     @Override
     public GPValidResponse validate(String base45, ValidationScanMode validationScanMode) {
-        if (lockWhileDrlSync.isLocked()) {
-            throw new ServiceException("DRL is updating");
-        }
+        checkSync();
         EnrichedDigitalCovidCertificate digitalCovidCertificate = gdcDecoderWrapper.decode(base45);
         return validator.validate(digitalCovidCertificate, validationScanMode);
     }
 
     @Override
     public GPValidResponse validate(byte[] file, ValidationScanMode validationScanMode) {
+        checkSync();
+        EnrichedDigitalCovidCertificate digitalCovidCertificate = gdcDecoderWrapper.decode(file);
+        return validator.validate(digitalCovidCertificate, validationScanMode);
+    }
+
+    private void checkSync() {
         if (lockWhileDrlSync.isLocked()) {
             throw new ServiceException("DRL is updating");
         }
-        EnrichedDigitalCovidCertificate digitalCovidCertificate = gdcDecoderWrapper.decode(file);
-        return validator.validate(digitalCovidCertificate, validationScanMode);
     }
 
 }
