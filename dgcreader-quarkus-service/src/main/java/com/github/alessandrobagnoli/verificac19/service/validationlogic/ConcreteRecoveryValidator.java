@@ -41,7 +41,6 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
     private static final String RECOVERY_CERT_END_DAY_IT = "recovery_cert_end_day_IT";
     private static final String RECOVERY_CERT_START_DAY_NOT_IT = "recovery_cert_start_day_NOT_IT";
     private static final String RECOVERY_CERT_END_DAY_NOT_IT = "recovery_cert_end_day_NOT_IT";
-
     private static final String SETTING_TYPE = "GENERIC";
 
     private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
@@ -65,7 +64,7 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
 
         boolean recoveryBis = isRecoveryBis(digitalCovidCertificate.getR());
 
-        String countryCode = validationScanMode == IT_ENTRY_DGP ? recoveryEntry.getCo() : "IT";
+        String countryCode = recoveryEntry.getCo();
 
         Integer endDaysToAdd =
             recoveryBis ? getRecoveryCertPvEndDay() : getRecoveryCertEndDayUnified(countryCode);

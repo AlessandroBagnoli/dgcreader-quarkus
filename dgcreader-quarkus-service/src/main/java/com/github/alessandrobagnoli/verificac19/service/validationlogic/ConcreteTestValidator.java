@@ -116,7 +116,7 @@ public class ConcreteTestValidator implements TestValidator {
             return NOT_VALID;
         }
 
-        return scanMode == BASE_DGP ? VALID : NOT_VALID;
+        return VALID;
     }
 
 }
