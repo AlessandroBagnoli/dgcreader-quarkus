@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.alessandrobagnoli.verifica19</groupId>
+        <groupId>com.github.alessandrobagnoli.verificac19</groupId>
         <artifactId>dgcreader-quarkus</artifactId>
         <version>${revision}</version>
     </parent>
@@ -24,22 +24,22 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.alessandrobagnoli.verifica19</groupId>
+                <groupId>com.github.alessandrobagnoli.verificac19</groupId>
                 <artifactId>dgcreader-quarkus-dao</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.alessandrobagnoli.verifica19</groupId>
+                <groupId>com.github.alessandrobagnoli.verificac19</groupId>
                 <artifactId>dgcreader-quarkus-dto</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.alessandrobagnoli.verifica19</groupId>
+                <groupId>com.github.alessandrobagnoli.verificac19</groupId>
                 <artifactId>dgcreader-quarkus-rest</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>com.github.alessandrobagnoli.verifica19</groupId>
+                <groupId>com.github.alessandrobagnoli.verificac19</groupId>
                 <artifactId>dgcreader-quarkus-service</artifactId>
                 <version>${revision}</version>
             </dependency>
