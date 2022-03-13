@@ -33,5 +33,5 @@ public class ConcreteSettingsRetriever implements SettingsRetriever {
             .findFirst()
             .orElseThrow();
     }
-    
+
 }

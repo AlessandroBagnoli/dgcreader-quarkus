@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ConcreteDrlStatusStore implements DrlStatusStore {
-    
+
     private DrlStatus drlStatus;
 
     public ConcreteDrlStatusStore() {

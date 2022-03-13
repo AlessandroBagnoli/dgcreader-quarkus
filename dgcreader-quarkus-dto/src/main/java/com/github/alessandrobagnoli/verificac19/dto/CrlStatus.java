@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(toBuilder = true)
 public class CrlStatus {
-    
+
     private Long fromVersion;
     private String id;
     private Long chunk;
@@ -22,5 +22,5 @@ public class CrlStatus {
     private Long version;
     private Long totalChunk;
     private Long totalNumberUCVI;
-    
+
 }

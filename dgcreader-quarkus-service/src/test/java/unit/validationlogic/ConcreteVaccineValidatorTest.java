@@ -284,7 +284,7 @@ class ConcreteVaccineValidatorTest {
             any())).willReturn(0);
         given(
             settingsRetriever.getSettingValue(eq(VACCINE_END_DAY_NOT_COMPLETE), any())).willReturn(
-            60);
+            99999);
         given(settingsRetriever.getSettingValueAsString(eq(EMA_VACCINES), any())).willReturn(
             JOHNSON);
 

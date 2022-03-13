@@ -43,7 +43,7 @@ import com.github.alessandrobagnoli.verificac19.customdecoder.EnrichedDigitalCov
 import com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode;
 import com.github.alessandrobagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
-import com.github.alessandrobagnoli.verificac19.service.ConcreteGDCDecoderWrapper;
+import com.github.alessandrobagnoli.verificac19.service.CertificateStore;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.SettingsRetriever;
 import com.github.alessandrobagnoli.verificac19.service.validationlogic.ConcreteRecoveryValidator;
 import com.github.alessandrobagnoli.verificac19.service.validationlogic.RevokedAndBlacklistedChecker;
@@ -66,7 +66,7 @@ class ConcreteRecoveryValidatorTest {
 
     private @Mock RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
     private @Mock SettingsRetriever settingsRetriever;
-    private @Mock ConcreteGDCDecoderWrapper decoderWrapper;
+    private @Mock CertificateStore certificateStore;
 
     private @InjectMocks ConcreteRecoveryValidator underTest;
 
@@ -216,7 +216,7 @@ class ConcreteRecoveryValidatorTest {
                 );
         X509Certificate certificate = x509CertificateSupplier(singletonList("ignored")).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_START_DAY_IT, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_END_DAY_IT, SETTING_TYPE))
@@ -258,7 +258,7 @@ class ConcreteRecoveryValidatorTest {
                 );
         X509Certificate certificate = x509CertificateSupplier(emptyList()).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_START_DAY_IT, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_END_DAY_IT, SETTING_TYPE))
@@ -300,7 +300,7 @@ class ConcreteRecoveryValidatorTest {
                 );
         X509Certificate certificate = x509CertificateSupplier(emptyList()).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_START_DAY_NOT_IT, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_END_DAY_NOT_IT, SETTING_TYPE))
@@ -342,7 +342,7 @@ class ConcreteRecoveryValidatorTest {
                 );
         X509Certificate certificate = x509CertificateSupplier(singletonList("ignored")).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_START_DAY_NOT_IT, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_CERT_END_DAY_NOT_IT, SETTING_TYPE))
@@ -384,7 +384,7 @@ class ConcreteRecoveryValidatorTest {
                 );
         X509Certificate certificate = x509CertificateSupplier(singletonList(OID_RECOVERY)).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_PV_CERT_START_DAY, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_PV_CERT_END_DAY, SETTING_TYPE))
@@ -427,7 +427,7 @@ class ConcreteRecoveryValidatorTest {
         X509Certificate certificate =
             x509CertificateSupplier(singletonList(OID_ALT_RECOVERY)).get();
         given(revokedAndBlacklistedChecker.check("fakeID")).willReturn(empty());
-        given(decoderWrapper.getCurrentCertificate()).willReturn(certificate);
+        given(certificateStore.getCertificate()).willReturn(certificate);
         given(settingsRetriever.getSettingValue(RECOVERY_PV_CERT_START_DAY, SETTING_TYPE))
             .willReturn(0);
         given(settingsRetriever.getSettingValue(RECOVERY_PV_CERT_END_DAY, SETTING_TYPE))

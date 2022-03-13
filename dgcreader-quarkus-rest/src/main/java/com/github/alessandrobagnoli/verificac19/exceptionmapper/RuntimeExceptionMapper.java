@@ -34,5 +34,5 @@ public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
                 .build())
             .build();
     }
-    
+
 }

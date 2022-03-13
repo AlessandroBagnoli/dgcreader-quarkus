@@ -13,11 +13,13 @@ import se.digg.dgc.signatures.CertificateProvider;
 import se.digg.dgc.signatures.DGCSignatureVerifier;
 
 @Slf4j
-public class ConcreteEnrichedDGCBarcodeDecoder extends DefaultDGCBarcodeDecoder implements EnrichedDGCBarcodeDecoder {
+public class ConcreteEnrichedDGCBarcodeDecoder extends DefaultDGCBarcodeDecoder
+    implements EnrichedDGCBarcodeDecoder {
 
     /**
      * Constructor.
-     *  @param dgcSignatureVerifier the signature verifier - if null, an instance of {@link DefaultDGCSignatureVerifier} will be used
+     *
+     * @param dgcSignatureVerifier the signature verifier - if null, an instance of {@link DefaultDGCSignatureVerifier} will be used
      * @param certificateProvider  the certificate provider that is used to locate certificates to use when verifying signatures
      */
     public ConcreteEnrichedDGCBarcodeDecoder(DGCSignatureVerifier dgcSignatureVerifier,

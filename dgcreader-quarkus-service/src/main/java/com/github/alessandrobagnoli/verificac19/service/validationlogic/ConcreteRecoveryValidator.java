@@ -5,7 +5,6 @@ import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.Certi
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.TEST_NEEDED;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.IT_ENTRY_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
 import static java.util.Optional.ofNullable;
@@ -22,7 +21,7 @@ import com.github.alessandrobagnoli.verificac19.customdecoder.EnrichedDigitalCov
 import com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus;
 import com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode;
 import com.github.alessandrobagnoli.verificac19.exception.EmptyDigitalCovidCertificateException;
-import com.github.alessandrobagnoli.verificac19.service.ConcreteGDCDecoderWrapper;
+import com.github.alessandrobagnoli.verificac19.service.CertificateStore;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.SettingsRetriever;
 
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,7 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
 
     private final RevokedAndBlacklistedChecker revokedAndBlacklistedChecker;
     private final SettingsRetriever settingsRetriever;
-    private final ConcreteGDCDecoderWrapper decoderWrapper;
+    private final CertificateStore certificateStore;
 
     @Override
     public CertificateStatus calculateValidity(
@@ -98,7 +97,7 @@ public class ConcreteRecoveryValidator implements RecoveryValidator {
 
     @SneakyThrows
     private boolean isRecoveryBis(List<RecoveryEntry> recoveries) {
-        X509Certificate cert = decoderWrapper.getCurrentCertificate();
+        X509Certificate cert = certificateStore.getCertificate();
         RecoveryEntry firstRecovery = recoveries.stream().findFirst().orElseThrow();
         return "IT".equals(firstRecovery.getCo()) &&
             ofNullable(cert.getExtendedKeyUsage())

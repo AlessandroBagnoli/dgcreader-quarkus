@@ -10,7 +10,7 @@
         <artifactId>dgcreader-quarkus</artifactId>
         <version>${revision}</version>
     </parent>
-    
+
     <artifactId>dgcreader-quarkus-bom</artifactId>
     <packaging>pom</packaging>
 
@@ -65,5 +65,5 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
 </project>

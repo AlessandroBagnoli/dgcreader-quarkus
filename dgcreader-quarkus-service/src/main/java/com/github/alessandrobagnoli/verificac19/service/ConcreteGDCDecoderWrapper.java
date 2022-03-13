@@ -19,10 +19,7 @@ import com.github.alessandrobagnoli.verificac19.customdecoder.EnrichedDigitalCov
 import com.github.alessandrobagnoli.verificac19.exception.ServiceException;
 import com.github.alessandrobagnoli.verificac19.service.downloaders.CertificatesDownloader;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import se.digg.dgc.encoding.BarcodeException;
 import se.digg.dgc.payload.v1.DGCSchemaException;
 import se.digg.dgc.signatures.CertificateProvider;
@@ -33,9 +30,7 @@ import se.digg.dgc.signatures.impl.DefaultDGCSignatureVerifier;
 public class ConcreteGDCDecoderWrapper implements GDCDecoderWrapper {
 
     private final CertificatesDownloader certificatesDownloader;
-    @Getter
-    @Setter(AccessLevel.PRIVATE)
-    private X509Certificate currentCertificate;
+    private final CertificateStore certificateStore;
 
     @Override
     public EnrichedDigitalCovidCertificate decode(String base45) {
@@ -65,12 +60,12 @@ public class ConcreteGDCDecoderWrapper implements GDCDecoderWrapper {
         return digitalCovidCertificate;
     }
 
-    private EnrichedDGCBarcodeDecoder createDecoder() {
+    private synchronized EnrichedDGCBarcodeDecoder createDecoder() {
         CertificateProvider certificateProvider =
             (country, kid) -> {
                 String base64Kid = Base64.encodeBase64String(kid);
                 X509Certificate cert = certificatesDownloader.download().get(base64Kid);
-                setCurrentCertificate(cert);
+                certificateStore.setCertificate(cert);
                 return ofNullable(cert)
                     .map(Collections::singletonList)
                     .orElse(emptyList());
@@ -78,5 +73,5 @@ public class ConcreteGDCDecoderWrapper implements GDCDecoderWrapper {
         return new ConcreteEnrichedDGCBarcodeDecoder(new DefaultDGCSignatureVerifier(),
             certificateProvider);
     }
-    
+
 }

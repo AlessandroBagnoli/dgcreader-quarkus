@@ -15,7 +15,7 @@ public interface DrlStatusStore {
     DrlStatus getDrlStatus();
 
     void setDrlStatus(DrlStatus drlStatus);
-    
+
     void resetDrlStatus();
 
 }

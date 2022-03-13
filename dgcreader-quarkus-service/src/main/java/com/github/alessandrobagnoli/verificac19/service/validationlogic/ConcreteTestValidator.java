@@ -3,7 +3,6 @@ package com.github.alessandrobagnoli.verificac19.service.validationlogic;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.NOT_VALID_YET;
 import static com.github.alessandrobagnoli.verificac19.dto.GPValidResponse.CertificateStatus.VALID;
-import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.BASE_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.ENHANCED_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.RSA_VISITORS_DGP;
 import static com.github.alessandrobagnoli.verificac19.dto.ValidationScanMode.WORK_DGP;
@@ -53,7 +52,7 @@ public class ConcreteTestValidator implements TestValidator {
 
         return isNotValidForWork(dgc, scanMode) ?
             NOT_VALID :
-            getValidity(dgc, scanMode);
+            getValidity(dgc);
 
     }
 
@@ -69,8 +68,7 @@ public class ConcreteTestValidator implements TestValidator {
         return scanMode == WORK_DGP && personAge >= 50;
     }
 
-    private CertificateStatus getValidity(EnrichedDigitalCovidCertificate dgc,
-        ValidationScanMode scanMode) {
+    private CertificateStatus getValidity(EnrichedDigitalCovidCertificate dgc) {
         TestEntry testEntry = dgc.getT().stream()
             .findFirst()
             .orElseThrow(() -> new EmptyDigitalCovidCertificateException("No tests found"));
