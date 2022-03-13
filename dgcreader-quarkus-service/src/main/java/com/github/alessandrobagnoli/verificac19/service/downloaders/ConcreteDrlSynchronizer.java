@@ -67,7 +67,6 @@ public class ConcreteDrlSynchronizer implements DrlSynchronizer {
                 .build());
         } else {
             revokedPassDAO.deleteAll();
-            revokedPassDAO.flush();
             drlStatusStore.resetDrlStatus();
             synchronize();
         }
@@ -96,7 +95,6 @@ public class ConcreteDrlSynchronizer implements DrlSynchronizer {
             List<RevokedPass> toAdd = new ArrayList<>();
             revokedUcvis.forEach(s -> toAdd.add(RevokedPass.builder().hashedUVCI(s).build()));
             revokedPassDAO.persist(toAdd);
-            revokedPassDAO.flush();
         };
     }
 }

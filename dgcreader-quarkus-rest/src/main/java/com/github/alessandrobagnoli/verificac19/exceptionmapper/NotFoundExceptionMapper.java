@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
@@ -30,7 +31,7 @@ public class NotFoundExceptionMapper implements ExceptionMapper<NotFoundExceptio
             .entity(ApiErrorSchema.builder()
                 .errors(singletonList(ex.getMessage()))
                 .path(uriInfo.getPath())
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .status(NOT_FOUND)
                 .build())
             .build();

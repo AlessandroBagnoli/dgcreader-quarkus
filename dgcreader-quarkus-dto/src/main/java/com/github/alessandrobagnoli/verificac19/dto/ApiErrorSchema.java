@@ -1,6 +1,6 @@
 package com.github.alessandrobagnoli.verificac19.dto;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.ws.rs.core.Response.Status;
@@ -12,7 +12,7 @@ import lombok.Data;
 @Builder
 public class ApiErrorSchema {
 
-    private Instant timestamp;
+    private LocalDateTime timestamp;
     private Status status;
     private List<String> errors;
     private String path;

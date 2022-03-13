@@ -3,7 +3,7 @@ package com.github.alessandrobagnoli.verificac19.exceptionmapper;
 import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -29,7 +29,7 @@ public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException>
             .entity(ApiErrorSchema.builder()
                 .errors(singletonList(ex.getMessage()))
                 .path(uriInfo.getPath())
-                .timestamp(Instant.now())
+                .timestamp(LocalDateTime.now())
                 .status(INTERNAL_SERVER_ERROR)
                 .build())
             .build();
